@@ -1,10 +1,9 @@
 const { 
   getUserTasks, 
-  getHelpTasks, 
   updateTask, 
   addTask, 
   deleteTask,
-} = require("./apiCalls.js");
+} = require("../../api/hustle.js");
 const { client } = require("../../client.js");
 
 const hustleBot = ({channel, tags, args, command}) => {
@@ -16,36 +15,16 @@ const hustleBot = ({channel, tags, args, command}) => {
       const notComplete = Object.values(data).filter((task) => !task.isDone);
       // check if there are any incomplete tasks
       if (notComplete.length) {
-        const taskList = notComplete.map((item, index) => `${index + 1}: ${item.task}`);
+        const taskList = notComplete.map((item, index) => `${index + 1}: ${item.needsHelp ? '🦆' : ''} ${item.task}`);
         client.say(channel, `👀 @${tags.username}, You have a total of ${taskList.length} incomplete tasks: ${taskList.join(', ')}`);
       } else {
         client.say(channel, `❌ @${tags.username}, You do not have any incomplete tasks! To add a task, enter !addTask YOUR TASK`);
       }
     });
   }
-
-  if (command === 'viewducks' || command === 'viewduck') {
-    getHelpTasks().then((data) => {
-      // filter the tasks for the incomplete ones
-      const ducks = Object.values(data);
-      // check if there are any incomplete tasks
-      if (ducks.length) {
-        const taskList = ducks.map((item, index) => `${index + 1} ${item.username} needs help with: ${item.task}`);
-        client.say(channel, `🦆 @${tags.username}, We have a total of ${taskList.length} Rubber Duck tasks: ${taskList.join(', ')}`);
-      } else {
-        client.say(channel, `🥳 @${tags.username}, We do not have any Rubber Duck tasks! We are kicking ass as a community!`);
-      }
-    });
-  }
-
   if (command === 'addtask') {
     addTask(tags.username, args.join(' ')).then(() => {
       client.say(channel, `📥 @${tags.username}, your task was added!`);
-    });
-  }
-  if (command === 'rubberduck') {
-    addTask(tags.username, args.join(' '), true).then(() => {
-      client.say(channel, `📥 @${tags.username}, your Rubber Duck request was added!`);
     });
   }
   if (command === 'deletetask') {
